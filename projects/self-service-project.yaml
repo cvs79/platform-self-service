@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: self-service
+  namespace: argocd
+spec:
+  description: "Self-service platform resources"
+
+  # Define what repositories this project can use
+  sourceRepos:
+  - 'https://github.com/*/platform-self-service.git'
+  - 'https://github.com/*/platform-self-service'
+  - '*'  # Allow all repos for flexibility during the workshop
+
+  # Define where apps in this project can deploy to
+  destinations:
+  - namespace: 'devops-*'
+    server: https://kubernetes.default.svc
+
+  # Cluster resource allow list
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+
+  # Namespace resource allow list
+  namespaceResourceWhitelist:
+  - group: ''
+    kind: ResourceQuota
+  - group: ''
+    kind: LimitRange
+  - group: ''
+    kind: ConfigMap
+  - group: ''
+    kind: Secret
+  - group: ''
+    kind: Service
+  - group: 'apps'
+    kind: Deployment
+  - group: 'apps'
+    kind: ReplicaSet
+  - group: ''
+    kind: Pod
+
+  # RBAC roles for this project
+  roles:
+  - name: developer
+    description: "Developer access for self-service resources"
+    policies:
+    - p, proj:self-service:developer, applications, get, self-service/*, allow
+    - p, proj:self-service:developer, applications, sync, self-service/*, allow
+    groups:
+    - developers
+
+  - name: admin
+    description: "Admin access for self-service resources"
+    policies:
+    - p, proj:self-service:admin, applications, *, self-service/*, allow
+    - p, proj:self-service:admin, repositories, *, *, allow
+    groups:
+    - platform-admins

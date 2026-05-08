@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: dev-teams
+  namespace: argocd
+spec:
+  description: "Development teams applications"
+
+  sourceRepos:
+  - '*'
+
+  destinations:
+  - namespace: 'devops-*'
+    server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+
+  roles:
+  - name: team-member
+    description: "Team member access"
+    policies:
+    - p, proj:dev-teams:team-member, applications, get, dev-teams/*, allow
+    - p, proj:dev-teams:team-member, applications, sync, dev-teams/*, allow
+    groups:
+    - dev-team-members
