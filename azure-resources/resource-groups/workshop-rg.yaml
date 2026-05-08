@@ -9,3 +9,5 @@ spec:
     environment: workshop
     managed-by: azure-service-operator
     workshop: platform-engineering
+    updated: "true"
+    date: "2024-01"
