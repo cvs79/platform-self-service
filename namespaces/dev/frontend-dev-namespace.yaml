@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops-frontend-dev
+  labels:
+    team: frontend
+    environment: dev
+    managed-by: platform-team
+  annotations:
+    team.contact: "frontend-team@company.com"
+    purpose: "Frontend application development environment"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: frontend-dev-quota
+  namespace: devops-frontend-dev
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 4Gi
+    limits.cpu: "4"
+    limits.memory: 8Gi
+    persistentvolumeclaims: "4"
+    services: "5"
+    secrets: "10"
+    configmaps: "10"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: frontend-dev-limits
+  namespace: devops-frontend-dev
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container

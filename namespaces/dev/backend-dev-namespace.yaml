@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops-backend-dev
+  labels:
+    team: backend
+    environment: dev
+    managed-by: platform-team
+  annotations:
+    team.contact: "backend-team@company.com"
+    purpose: "Backend services development environment"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: backend-dev-quota
+  namespace: devops-backend-dev
+spec:
+  hard:
+    requests.cpu: "3"
+    requests.memory: 6Gi
+    limits.cpu: "6"
+    limits.memory: 12Gi
+    persistentvolumeclaims: "8"
+    services: "10"
+    secrets: "15"
+    configmaps: "15"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: backend-dev-limits
+  namespace: devops-backend-dev
+spec:
+  limits:
+  - default:
+      cpu: 1000m
+      memory: 1Gi
+    defaultRequest:
+      cpu: 200m
+      memory: 256Mi
+    type: Container
