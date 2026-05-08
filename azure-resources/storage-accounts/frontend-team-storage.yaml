@@ -1,0 +1,17 @@
+apiVersion: storage.azure.com/v1api20230101
+kind: StorageAccount
+metadata:
+  name: frontendstoragecvs79
+  namespace: devops-frontend-dev
+spec:
+  location: swedencentral
+  kind: StorageV2
+  sku:
+    name: Standard_LRS
+  owner:
+    name: frontend-team-rg
+  accessTier: Hot
+  tags:
+    environment: dev
+    team: frontend
+    managed-by: azure-service-operator

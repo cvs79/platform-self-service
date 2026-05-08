@@ -1,0 +1,16 @@
+apiVersion: storage.azure.com/v1api20230101
+kind: StorageAccount
+metadata:
+  name: workshopstoragecvs79
+  namespace: default
+spec:
+  location: swedencentral
+  kind: StorageV2
+  sku:
+    name: Standard_LRS
+  owner:
+    name: workshop-rg
+  accessTier: Hot
+  tags:
+    environment: workshop
+    managed-by: azure-service-operator

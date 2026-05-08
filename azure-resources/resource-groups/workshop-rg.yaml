@@ -1,0 +1,11 @@
+apiVersion: resources.azure.com/v1api20200601
+kind: ResourceGroup
+metadata:
+  name: workshop-rg
+  namespace: default
+spec:
+  location: swedencentral
+  tags:
+    environment: workshop
+    managed-by: azure-service-operator
+    workshop: platform-engineering
