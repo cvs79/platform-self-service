@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: self-service-namespaces
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/cvs79/platform-self-service.git
+        revision: HEAD
+        directories:
+          - path: namespaces/*
+  template:
+    metadata:
+      name: '{{path.basename}}-namespaces'
+    spec:
+      project: self-service
+      source:
+        repoURL: https://github.com/cvs79/platform-self-service.git
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: devops-namespaces
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
