@@ -1,0 +1,60 @@
+# Kubernetes Namespace Request Template
+#
+# Instructions:
+# 1. Copy this file to: namespaces/{environment}/{your-team}-namespace.yaml
+# 2. Replace all {{PLACEHOLDERS}} with your values
+# 3. Commit and push to create a PR
+# 4. After PR approval and merge, ArgoCD will create your namespace
+#
+# Example values:
+#   TEAM_NAME: frontend, backend, data-team
+#   ENVIRONMENT: dev, staging, prod
+#   CONTACT_EMAIL: team@company.com
+#   PURPOSE: Application deployment, testing, etc.
+#   CPU_CORES: 1, 2, 4, 8
+#   MEMORY_GB: 2, 4, 8, 16
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops-{{TEAM_NAME}}-{{ENVIRONMENT}}
+  labels:
+    team: {{TEAM_NAME}}
+    environment: {{ENVIRONMENT}}
+    managed-by: platform-team
+    created-via: self-service
+  annotations:
+    team.contact: "{{CONTACT_EMAIL}}"
+    purpose: "{{PURPOSE}}"
+    requested-date: "{{DATE}}"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{TEAM_NAME}}-{{ENVIRONMENT}}-quota
+  namespace: devops-{{TEAM_NAME}}-{{ENVIRONMENT}}
+spec:
+  hard:
+    requests.cpu: "{{CPU_CORES}}"
+    requests.memory: "{{MEMORY_GB}}Gi"
+    limits.cpu: "{{CPU_CORES * 2}}"
+    limits.memory: "{{MEMORY_GB * 2}}Gi"
+    persistentvolumeclaims: "5"
+    services: "10"
+    pods: "20"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{TEAM_NAME}}-{{ENVIRONMENT}}-limits
+  namespace: devops-{{TEAM_NAME}}-{{ENVIRONMENT}}
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container

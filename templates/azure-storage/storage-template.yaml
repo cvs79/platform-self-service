@@ -1,0 +1,53 @@
+# Azure Storage Account Request Template
+#
+# Instructions:
+# 1. Copy this file to: azure-resources/{your-team-name}/{your-storage-name}.yaml
+# 2. Replace all {{PLACEHOLDERS}} with your values
+# 3. Commit and push to create a PR
+# 4. After PR approval and merge, ArgoCD and ASO will create your storage account
+#
+# Example values:
+#   TEAM_NAME: frontend, backend, data-team
+#   ENVIRONMENT: dev, staging, prod
+#   STORAGE_NAME: myteamstorage001 (must be globally unique, 3-24 chars, lowercase alphanumeric only)
+#   PURPOSE: Application data, backups, etc.
+#   AZURE_REGION: swedencentral, westeurope, northeurope
+#   SKU: Standard_LRS (local), Standard_GRS (geo-redundant)
+
+---
+# Resource Group for Storage
+apiVersion: resources.azure.com/v1api20200601
+kind: ResourceGroup
+metadata:
+  name: {{TEAM_NAME}}-{{ENVIRONMENT}}-storage-rg
+  namespace: default
+spec:
+  location: {{AZURE_REGION}}
+  tags:
+    team: {{TEAM_NAME}}
+    environment: {{ENVIRONMENT}}
+    resource-type: storage
+    managed-by: platform-team
+    created-via: self-service
+    requested-date: "{{DATE}}"
+---
+# Storage Account
+apiVersion: storage.azure.com/v1api20230101
+kind: StorageAccount
+metadata:
+  name: {{STORAGE_NAME}}
+  namespace: default
+spec:
+  location: {{AZURE_REGION}}
+  kind: StorageV2
+  sku:
+    name: {{SKU}}
+  owner:
+    name: {{TEAM_NAME}}-{{ENVIRONMENT}}-storage-rg
+  accessTier: Hot
+  tags:
+    team: {{TEAM_NAME}}
+    environment: {{ENVIRONMENT}}
+    purpose: "{{PURPOSE}}"
+    managed-by: platform-team
+    created-via: self-service
