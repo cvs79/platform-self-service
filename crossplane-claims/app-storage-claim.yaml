@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-alpha
+
+---
+apiVersion: platform.workshop.io/v1alpha1
+kind: AppStorageClaim
+metadata:
+  name: myapp-storage
+  namespace: team-alpha
+spec:
+  parameters:
+    resourceGroupName: rg-cvs79-crossplane-claim
+    storageAccountName: stcvs79cpclaim
+    location: swedencentral
+    environment: workshop
+  compositionRef:
+    name: appstorage-composition
