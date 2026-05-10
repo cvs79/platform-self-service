@@ -1,0 +1,28 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: appnamespace
+  namespace: default
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: AppNamespace
+    spec:
+      appName: string
+      environment: string | default=dev
+      location: string | default=swedencentral
+  resources:
+  - id: resourcegroup
+    template:
+      apiVersion: resources.azure.com/v1api20200601
+      kind: ResourceGroup
+      metadata:
+        name: ${schema.spec.appName}-${schema.spec.environment}-rg
+        namespace: default
+      spec:
+        location: ${schema.spec.location}
+        tags:
+          app: ${schema.spec.appName}
+          environment: ${schema.spec.environment}
+          managed-by: kro
+          created-by: platform-team

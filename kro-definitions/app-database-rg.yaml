@@ -1,0 +1,87 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: appdatabase
+  namespace: default
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: AppDatabase
+    spec:
+      appName: string
+      environment: string | default=dev
+      location: string | default=swedencentral
+  resources:
+  # 1. Resource Group for the database
+  - id: databaseRg
+    template:
+      apiVersion: resources.azure.com/v1api20200601
+      kind: ResourceGroup
+      metadata:
+        name: ${schema.spec.appName}-${schema.spec.environment}-db-rg
+        namespace: default
+      spec:
+        location: ${schema.spec.location}
+        tags:
+          app: ${schema.spec.appName}
+          environment: ${schema.spec.environment}
+          resource-type: database
+          managed-by: kro
+
+  # 2. PostgreSQL Flexible Server
+  - id: postgresqlServer
+    template:
+      apiVersion: dbforpostgresql.azure.com/v1api20230601preview
+      kind: FlexibleServer
+      metadata:
+        name: ${schema.spec.appName}-${schema.spec.environment}-psql
+        namespace: default
+      spec:
+        location: ${schema.spec.location}
+        owner:
+          name: ${databaseRg.metadata.name}
+        sku:
+          name: Standard_B1ms
+          tier: Burstable
+        administratorLogin: psqladmin
+        administratorLoginPassword:
+          name: ${schema.spec.appName}-db-password
+          key: password
+        storage:
+          storageSizeGB: 32
+        backup:
+          backupRetentionDays: 7
+          geoRedundantBackup: Disabled
+        version: "15"
+        tags:
+          app: ${schema.spec.appName}
+          environment: ${schema.spec.environment}
+          managed-by: kro
+
+  # 3. PostgreSQL Database
+  - id: postgresqlDatabase
+    template:
+      apiVersion: dbforpostgresql.azure.com/v1api20230601preview
+      kind: FlexibleServersDatabase
+      metadata:
+        name: ${schema.spec.appName}-db
+        namespace: default
+      spec:
+        owner:
+          name: ${postgresqlServer.metadata.name}
+        charset: UTF8
+        collation: en_US.utf8
+
+  # 4. Firewall rule to allow Azure services
+  - id: firewallRule
+    template:
+      apiVersion: dbforpostgresql.azure.com/v1api20230601preview
+      kind: FlexibleServersFirewallRule
+      metadata:
+        name: ${schema.spec.appName}-allow-azure
+        namespace: default
+      spec:
+        owner:
+          name: ${postgresqlServer.metadata.name}
+        startIpAddress: 0.0.0.0
+        endIpAddress: 0.0.0.0

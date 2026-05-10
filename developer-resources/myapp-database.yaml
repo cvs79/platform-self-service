@@ -1,0 +1,9 @@
+apiVersion: kro.run/v1alpha1
+kind: AppDatabase
+metadata:
+  name: myapp-database
+  namespace: default
+spec:
+  appName: myapp
+  environment: dev
+  location: swedencentral

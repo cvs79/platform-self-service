@@ -1,0 +1,9 @@
+apiVersion: kro.run/v1alpha1
+kind: AppNamespace
+metadata:
+  name: my-first-app
+  namespace: default
+spec:
+  appName: myapp
+  environment: dev
+  location: swedencentral
